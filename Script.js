@@ -207,7 +207,6 @@ getButton.addEventListener("click", e => {
     getExchangeRate();
 });
 
-
 const exchangeIcon = document.querySelector(".drop-list .icon");
 exchangeIcon.addEventListener('click', () => {
     let tempCode = fromCurrency.value; //temprary code of FROM drop list
@@ -217,3 +216,27 @@ exchangeIcon.addEventListener('click', () => {
     loadFlag(toCurrency);  //calling load flag with passing select element (toCurrency) of TO
     getExchangeRate();
 });
+
+
+
+
+function getExchangeRate() {
+    const amount = document.querySelector(".amount input"),
+        exchangeRateText = document.querySelector(".exchange-rate");
+    let amountVal = amount.value;
+    // If user dont enter any value or enter 0 then we'll put 1 by default in the input field
+    if (amountVal == "" || amountVal == "0") {
+        amount.value = "1";
+        amountVal = 1;
+    }
+    exchangeRateText.innerText = "Getting Exchange Rate";
+    let url = `https://v6.exchangerate-api.com/v6/4a1e285bfd5009f2adb516a1/latest/${fromCurrency.value}`;
+    //fetching api respose and returning it with parsing into js obj and in another then method recieving that obj
+    fetch(url).then(response => response.json()).then(result => {
+        let exchangeRate = result.conversion_rates[toCurrency.value];
+        let totalExchangeRate = (amountVal * exchangeRate).toFixed(2);
+        exchangeRateText.innerText = `${amountVal} ${fromCurrency.value} = ${totalExchangeRate} ${toCurrency.value}`;
+    }).catch(() => {  //if user is offline or any other error occured while fetching data then catch function will run
+        exchangeRateText.innerText = "Something went Wrong";
+    });
+}
